@@ -66,3 +66,5 @@ Deploying the frontend and backend
 - **(Week 6-8)**
 Testing the application
 Debugging the application for smooth user experience
+
+**Backend Deployed Link:-** https://s62-isaac-capstone-advensure.onrender.com

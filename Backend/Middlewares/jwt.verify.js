@@ -1,3 +1,4 @@
+// This is the Part where the jwt token is used
 const jwt = require("jsonwebtoken");
 
 const verifyUser = (req, res, next) => {

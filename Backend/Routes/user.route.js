@@ -6,6 +6,7 @@ const router=express.Router()
 router.post("/signup",createUser)
 //POST Request
 router.post("/login",loginUser)
+//GET Request
 router.get('/get-user',verifyUser,getUser)
 //POST Request
 router.post('/logout',logoutUser)

@@ -1,5 +1,6 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable no-unused-vars */
+//This is the frontend component for features which is shown above the testemonial section
 import React from "react";
 
 function FeatureComponent({ feature, image, description }) {

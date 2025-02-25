@@ -3,7 +3,7 @@ import { Menu, X, User, LogOut, Edit } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Logo from "../assets/Logo.jpg";
-
+//This is the frontend component for Navbar which helps in navigating to the different sections of the web application
 function Navbar() {
   const { user, setUser } = useAuth(); // Get user & setUser from context
   const navigate = useNavigate();

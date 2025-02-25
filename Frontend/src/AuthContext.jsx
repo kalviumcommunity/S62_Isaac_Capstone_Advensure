@@ -8,6 +8,7 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState("Guest User");
 
   const fetchUser = async () => {
+    // GET request called
     try {
       const response = await fetch("http://localhost:8080/user/get-user", {
         method: "GET",

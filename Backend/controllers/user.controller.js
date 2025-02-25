@@ -5,6 +5,7 @@ const jwt=require("jsonwebtoken")
 require("dotenv").config({
     path:"../config/.env"
 })
+// In the create user function the writing to the database part is done 
 const createUser=async(req,res)=>{
     try{
         const {name,email,password}=req.body;
@@ -78,7 +79,7 @@ const loginUser=async(req,res)=>{
         return res.status(500).json({message:"Internal server error",success:false,Error:er.message})
     }
 }
-
+// in the get user function the read operation from the database is done
 const getUser=async(req,res)=>{
     try {
         const token = req.cookies.token;

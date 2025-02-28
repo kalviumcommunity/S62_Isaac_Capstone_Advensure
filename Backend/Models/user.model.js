@@ -6,10 +6,20 @@ userSchema=new mongoose.Schema({
     },
     email:{
         type:String,
-        required:true
+        required:true,
+        unique:true
     },
     password:{
         type:String,
+    },
+    googleId:{
+        type:String,
+        unique:true,
+        sparse:true,
+    },
+    provider:{
+        type:String,
+        enum:["email","google"],
         required:true
     }
 })

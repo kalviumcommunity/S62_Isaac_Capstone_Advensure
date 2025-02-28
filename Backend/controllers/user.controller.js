@@ -66,12 +66,12 @@ const loginUser=async(req,res)=>{
         const token = jwt.sign(
             { userId: user._id, email: user.email }, 
             process.env.jwtSecret, 
-            { expiresIn: "10h"}
+            { expiresIn: "10m"}
         );
         res.cookie("token", token, {
             httpOnly: true,
             sameSite: "Strict",
-            maxAge: 10*60*60*100
+            maxAge: 60*1000*10
         });
         res.status(200).json({message:"Successfully logged in",success:true,user:user})
     }
@@ -86,7 +86,7 @@ const getUser=async(req,res)=>{
         if (!token) {
             return res.status(401).json({ success: false, message: "No token found" });
         }
-
+        
         const decoded = jwt.verify(token, process.env.jwtSecret); 
         res.status(200).json({ success: true, user: { name: decoded.name, email: decoded.email } });
     } catch (err) {

@@ -1,14 +1,41 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-
+import { signInWithPopup } from "firebase/auth";
+import { auth, provider } from "../Firebase";
+import { useAuth } from "../AuthContext";
+import googleIcon from "../assets/Googleicon.webp"
 function SignupPage() {
   const navigate=useNavigate()
+  const { setUser } = useAuth();  
   const [data,setData]=useState({
     name:"",
     email:"",
     password:"",
     confirmPassword:""
   })
+  const handleGoogleLogin = async () => {
+    try {
+      const result = await signInWithPopup(auth, provider);
+      const token = await result.user.getIdToken();
+      
+      const response = await fetch("http://localhost:8080/user/google", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token })
+      });
+      
+      const data = await response.json();
+      if (response.ok) {
+        setUser(data.user);
+        alert("Google login successful");
+        navigate("/dashboard");
+      } else {
+        alert(data.message);
+      }
+    } catch (error) {
+      console.error("Google login error", error);
+    }
+  };
   const handleChange=(e)=>{
     setData({...data,[e.target.id]:e.target.value})
   }
@@ -73,6 +100,18 @@ function SignupPage() {
 
           <button type="submit" className="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600">
             Sign Up
+          </button>
+          <button 
+            type="button" 
+            onClick={handleGoogleLogin} 
+            className="w-full flex items-center justify-center gap-3 bg-white border border-gray-300 text-gray-700 py-2 rounded-lg hover:bg-gray-100 shadow-md"
+          >
+            <img 
+              src={googleIcon} 
+              alt="Google Logo" 
+              className="w-8 h-8"
+            />
+            <span>Sign up with Google</span>
           </button>
         </form>
 

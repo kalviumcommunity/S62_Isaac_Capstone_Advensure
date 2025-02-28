@@ -17,14 +17,7 @@ app.use(cors({
     methods:"GET,POST,PUT,DELETE,OPTIONS",
     allowedHeaders:"Content-Type,Authorization"
 }))
-app.options("*", (req, res) => {
-    res.header("Access-Control-Allow-Origin", "http://localhost:5173");
-    res.header("Access-Control-Allow-Credentials", "true");
-    res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-    res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
-    res.sendStatus(200);
-});
-
+app.options("*", cors());
 app.use("/user",userRoutes)
 mongoose.connect(MongoURL)
 .then(()=>{

@@ -2,6 +2,7 @@ const express=require("express")
 const userModel=require("../Models/user.model.js")
 const bcrypt=require("bcrypt")
 const jwt=require("jsonwebtoken")
+const admin=require("../firebaseAdmin.js")
 require("dotenv").config({
     path:"../config/.env"
 })
@@ -31,7 +32,8 @@ const createUser=async(req,res)=>{
         const data=await new userModel({
             name:name,
             email:email,
-            password:hashedPassword
+            password:hashedPassword,
+            provider:"email"
         })
         await data.save()
         res.status(201).json({message:"User details added successfully",success:true,data:data})
@@ -98,4 +100,27 @@ const logoutUser=(req,res)=>{
     res.clearCookie("token", { httpOnly: true, secure:true, sameSite: "None" });
     res.status(201).json({ success: true, message: "Logged out successfully" });
 }
-module.exports={createUser,loginUser,getUser,logoutUser}
+
+const loginUsingGoogle=async(req,res)=>{
+    const {token}=req.body;
+    try{
+        const decodedToken=await admin.auth().verifyIdToken(token);
+        const {uid,email,name}=decodedToken
+        let user=await userModel.findOne({email})
+        if(!user){
+            user=new userModel({
+                googleId:uid,
+                email,
+                name,
+                provider:"google"
+            })
+            await user.save()
+        }
+        res.json({ message: "User authenticated", user });
+    }
+    catch(er){
+        console.log("Error verifying Google token:", er);
+        res.status(401).json({ error: "Invalid token" });
+    }
+}
+module.exports={createUser,loginUser,getUser,logoutUser,loginUsingGoogle}

@@ -6,6 +6,12 @@ import Navbar from './Components/Navbar'
 import LoginPage from './Pages/LoginPage'
 import SignupPage from './Pages/SignupPage'
 import Dashboard from './Pages/Dashboard'
+import Explore from './Pages/ExplorePage'
+import PlanTrip from './Pages/PlanTrip'
+import BudgetPage from './Pages/BudgetPage'
+import HotelsPage from './Pages/HotelsPage'
+import ContactPage from './Pages/Contact'
+import RouteMap from './Components/RouteMap'
 
 function App() {
   return (
@@ -16,6 +22,12 @@ function App() {
         <Route path='/loginpage' element={<LoginPage />} />
         <Route path='/signuppage' element={<SignupPage />} />
         <Route path='/dashboard' element={<Dashboard />} />
+        {/* <Route path='/destinations' element={<Explore />} /> */}
+        <Route path="/plan" element={<PlanTrip />} />
+        <Route path="/budget" element={<BudgetPage />} />
+        <Route path="/hotels" element={<HotelsPage />} />
+        {/* <Route path='/contact' element={<ContactPage />} /> */}
+        <Route path='/map' element={<RouteMap from="Bangalore" to="Coorg" />} />
       </Routes>
     </div>
   )

@@ -3,6 +3,8 @@ const userModel=require("../Models/user.model.js")
 const bcrypt=require("bcrypt")
 const jwt=require("jsonwebtoken")
 const admin=require("../firebaseAdmin.js")
+const axios = require('axios');
+const _ = require('lodash');
 require("dotenv").config({
     path:"../config/.env"
 })
@@ -75,7 +77,7 @@ const loginUser=async(req,res)=>{
             sameSite: "Strict",
             maxAge: 60*1000*10
         });
-        res.status(200).json({message:"Successfully logged in",success:true,user:user})
+        cd
     }
     catch(er){
         return res.status(500).json({message:"Internal server error",success:false,Error:er.message})
@@ -101,26 +103,142 @@ const logoutUser=(req,res)=>{
     res.status(201).json({ success: true, message: "Logged out successfully" });
 }
 
-const loginUsingGoogle=async(req,res)=>{
-    const {token}=req.body;
-    try{
-        const decodedToken=await admin.auth().verifyIdToken(token);
-        const {uid,email,name}=decodedToken
-        let user=await userModel.findOne({email})
-        if(!user){
-            user=new userModel({
-                googleId:uid,
+const loginUsingGoogle = async (req, res) => {
+    const { token } = req.body;
+    try {
+        const decodedToken = await admin.auth().verifyIdToken(token);
+        const { uid, email, name } = decodedToken;
+
+        let user = await userModel.findOne({ email });
+        if (!user) {
+            user = new userModel({
+                googleId: uid,
                 email,
                 name,
-                provider:"google"
-            })
-            await user.save()
+                provider: "google"
+            });
+            await user.save();
         }
+        const accessToken = jwt.sign({ userId: user._id }, process.env.jwtSecret, { expiresIn: "15m" });
+        const refreshToken = jwt.sign({ userId: user._id }, process.env.encryptionSecret, { expiresIn: "7d" });
+
+        res.cookie("accessToken", accessToken, {
+            httpOnly: true,
+            sameSite: "Strict",
+            maxAge: 15 * 60 * 1000 
+        });
+
+        res.cookie("refreshToken", refreshToken, {
+            httpOnly: true,
+            secure: true,
+            sameSite: "Strict",
+            maxAge: 7 * 24 * 60 * 60 * 1000 
+        });
+
         res.json({ message: "User authenticated", user });
+
+    } catch (error) {
+        console.error("Error verifying Google token:", error);
+        res.status(401).json({ error: error.message });
     }
-    catch(er){
-        console.log("Error verifying Google token:", er);
-        res.status(401).json({ error: "Invalid token" });
+};
+// const hotelMapping = async (req, res) => {
+//   try {
+//     // Make the API call to the mapping endpoint
+//     const response = await axios.get('https://api.makcorps.com/mapping', {
+//       params: {
+//         api_key: process.env.HOTEL_API_KEY,
+//         name: 'bengaluru'
+//       }
+//     });
+
+//     // Send the API response data back to the client
+//     res.status(200).json(response.data);
+//   } catch (error) {
+//     // Handle any errors from the API call
+//     console.error('Error fetching hotel mapping:', error.message);
+//     res.status(500).json({ error: 'Failed to fetch hotel mapping' });
+//   }
+// };
+const API_KEY = process.env.HOTEL_API_KEY;
+const getCityId = _.memoize(async (name) => {
+  try {
+    const mapRes = await axios.get('https://api.makcorps.com/mapping', {
+      params: { api_key: API_KEY, name }
+    });
+    const mappingArray = Array.isArray(mapRes.data) ? mapRes.data : [];
+
+    const cityObj = mappingArray.find(
+      (item) =>
+        (item.type === 'GEO' || item.title === 'Destinations') &&
+        (item.value || item.document_id)
+    );
+    console.log("City Object:", cityObj);
+    return cityObj?.value ?? cityObj?.document_id ?? null;
+  } catch (err) {
+    console.error('Mapping API error:', err.message);
+    return null;
+  }
+});
+
+const searchHotel = async (req, res) => {
+  try {
+    const {
+      name,             // city name (e.g. Bengaluru)
+      pagination,
+      cur,
+      rooms,
+      adults,
+      checkin,
+      checkout,
+      tax = false,
+      children = 0
+    } = req.query;
+
+    // 1️⃣ Basic validation
+    if (!name || !pagination || !cur || !rooms || !adults || !checkin || !checkout) {
+      return res.status(400).json({ error: 'Missing required query parameters.' });
     }
-}
-module.exports={createUser,loginUser,getUser,logoutUser,loginUsingGoogle}
+
+    if (
+      isNaN(pagination) || isNaN(rooms) || isNaN(adults) || isNaN(children)
+    ) {
+      return res.status(400).json({ error: 'Invalid numeric query parameters.' });
+    }
+
+    if (
+      isNaN(Date.parse(checkin)) || isNaN(Date.parse(checkout))
+    ) {
+      return res.status(400).json({ error: 'Invalid checkin or checkout date format.' });
+    }
+
+    /* 2️⃣ STEP 1 — Get city ID from cached helper */
+    const cityid = await getCityId(name);
+    if (!cityid) {
+      return res.status(404).json({ error: 'City ID not found for the given city name.' });
+    }
+
+    /* 3️⃣ STEP 2 — Query the City API with the cityid */
+    const hotelRes = await axios.get('https://api.makcorps.com/city', {
+      params: {
+        api_key: API_KEY,
+        cityid,
+        pagination,
+        cur,
+        rooms,
+        adults,
+        checkin,
+        checkout,
+        tax,
+        children
+      }
+    });
+    console.log("Hotel Response:", hotelRes.data);
+    res.status(200).json(hotelRes.data);
+    
+  } catch (err) {
+    console.error('Error during hotel search:', err.message);
+    res.status(500).json({ error: 'Failed to fetch hotel data.' });
+  }
+};
+module.exports={createUser,loginUser,getUser,logoutUser,loginUsingGoogle,searchHotel}

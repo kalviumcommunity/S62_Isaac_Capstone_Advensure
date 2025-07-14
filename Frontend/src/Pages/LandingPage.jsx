@@ -3,8 +3,10 @@
 import React from "react";
 import { ArrowRight } from "lucide-react";
 import FeatureComponent from "../Components/FeatureComponent";
-
+import backgroundImage from "../assets/background.webp"
+import { useNavigate } from "react-router-dom";
 function LandingPage() {
+  const Navigate =useNavigate()
   return (
     <div className="w-full">
       {/*Hero Section*/}
@@ -12,7 +14,7 @@ function LandingPage() {
         className="relative h-[550px] flex items-center justify-center bg-cover bg-center"
         style={{
           backgroundImage:
-            "url('https://images.apollo247.in/pd-cms/cms/2023-12/mountaineers-5649828_1920.jpg?tr=q-80,f-webp,w-450,dpr-3,c-at_max%201350w')",
+            `url('${backgroundImage}')`,
         }}
       >
         <div className="absolute inset-0 bg-black bg-opacity-50"></div>
@@ -24,7 +26,9 @@ function LandingPage() {
               The Travel planner of the future
             </span>
           </h1>
-          <button className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 text-lg rounded-xl flex items-center gap-2 group">
+          <button onClick={() => {
+            Navigate("/plan")
+          }} className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 text-lg rounded-xl flex items-center gap-2 group">
             Start Planning
             <ArrowRight className="transition-transform group-hover:translate-x-1" size={20} />
           </button>

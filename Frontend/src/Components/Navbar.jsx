@@ -63,11 +63,11 @@ function Navbar() {
         {/* Desktop Navigation */}
         <div className="hidden md:flex space-x-6">
           <Link to="/" className="hover:text-blue-500">Home</Link>
-          <Link to="/destinations" className="hover:text-blue-500">Explore</Link>
+          {/* <Link to="/destinations" className="hover:text-blue-500">Explore</Link> */}
           <Link to="/plan" className="hover:text-blue-500">Plan a Trip</Link>
           <Link to="/budget" className="hover:text-blue-500">Budget</Link>
           <Link to="/hotels" className="hover:text-blue-500">Hotels</Link>
-          <Link to="/contact" className="hover:text-blue-500">Contact</Link>
+          {/* <Link to="/contact" className="hover:text-blue-500">Contact</Link> */}
         </div>
 
         {/* User Profile or Login */}
